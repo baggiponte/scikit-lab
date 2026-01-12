@@ -72,10 +72,44 @@ class LoggerProtocol(Protocol):
 ```python
 from dataclasses import dataclass
 from typing import Any
+from contextlib import contextmanager
 
 # Optional import paths; adapters should guard imports in real code.
 import mlflow
 import wandb
+
+
+@dataclass
+class NoOpRun:
+    def __enter__(self) -> "NoOpRun":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool | None:
+        return None
+
+    def log_params(self, params) -> None:
+        return None
+
+    def log_metrics(self, metrics, step: int | None = None) -> None:
+        return None
+
+    def set_tags(self, tags) -> None:
+        return None
+
+    def log_artifact(self, path: str, name: str | None = None) -> None:
+        return None
+
+    def log_model(self, model: Any, name: str | None = None) -> None:
+        return None
+
+    def finish(self, status: str = "success") -> None:
+        return None
+
+
+@dataclass
+class NoOpLogger:
+    def start_run(self, name=None, config=None, tags=None, nested=False) -> NoOpRun:
+        return NoOpRun()
 
 
 @dataclass
@@ -186,3 +220,11 @@ class WandbLogger:
         run = wandb.init(project=self.project, entity=self.entity, name=name, config=config or {}, tags=list(tags.values()) if tags else None, reinit=nested)
         return WandbRunAdapter(run)
 ```
+
+# How to test
+- Integration tests with a stub logger and run adapter that record calls:
+  - `start_run()` returns a context-managed run; `__enter__`/`__exit__` are invoked.
+  - `log_params`, `log_metrics`, `set_tags`, `log_artifact`, `log_model`, `finish` are called with expected payload shapes.
+- Adapter smoke tests (guarded by optional deps):
+  - MLflow: start/finish a run and log params/metrics without errors.
+  - W&B: init/finish a run and log params/metrics without errors (offline mode).
