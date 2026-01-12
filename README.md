@@ -76,6 +76,8 @@ pip install eksperiment[wandb]    # W&B logging
 
 See the [docs](docs/) for tutorials and API reference.
 
+Our docs follow a strict philosophy: **problem first, solution second**. Every tutorial explains *why* before *how*, never assumes prior knowledge, and includes runnable code examples tested by CI.
+
 ## Contributing
 
 ### Process
@@ -105,5 +107,41 @@ just docs      # Serve docs locally
 - **Docs are code**: every code fence in `docs/` is executed by pytest. If the docs lie, the build fails.
 - Integration tests over mocks
 - Fast and deterministic: small datasets, fixed seeds
+
+### Writing Documentation
+
+Documentation is a product. We ship it like one.
+
+> **Docs teach. Code shows. Neither assumes.**
+
+**The three principles:**
+
+1. **Problem first, solution second.** Every explanation starts with *why* before *how*.
+2. **Explain at point of use.** Don't front-load theory. Introduce concepts when the reader needs them.
+3. **Link for depth, explain for correctness.** Provide enough context to use the feature correctly; link to authoritative sources for deeper dives.
+
+**Quick rules:**
+
+| Rule | Example |
+|------|---------|
+| Never assume | Don't say "avoid leakage"—explain what leakage is |
+| Start with the problem | "Most models have hyperparameters that need tuning..." not "Grid search evaluates..." |
+| Use concept boxes | `> **Concept: Data Leakage**` blockquotes for theory |
+| Show "what happened" | Explain what code did after each block |
+| Provide decision tables | When to use X vs Y in table format |
+| Include "why it matters" | Connect concepts to practical consequences |
+| End with next steps | Link to related tutorials |
+| Cite sources | Link to papers for algorithms |
+
+**Code examples must:**
+
+- Run without modification (tested by pytest)
+- Show all imports
+- Use sklearn's built-in datasets
+- Set random seeds for reproducibility
+
+See [docs/developer/writing-docs.md](docs/developer/writing-docs.md) for the full style guide.
+
+---
 
 See [AGENTS.md](AGENTS.md) for full contributing guidelines.
