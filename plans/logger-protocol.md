@@ -9,37 +9,180 @@ tags:
   - experiment-runner
 ---
 
-Here’s what I found and how to bake context‑manager behavior into your logger Protocol.
+# Goal
+Define a logger protocol that preserves context-managed run semantics (e.g., `with mlflow.start_run()` / `with wandb.init()`), while keeping a small, stable surface for experiment logging.
 
-How existing libs behave
-- Transformers uses a callback system (TrainerCallback) with event hooks (e.g., `on_train_begin`, `on_log`, `on_evaluate`, `on_train_end`) and loads integrations based on installed packages and a `report_to` list. This gives a “plugin‑style” logger surface that reacts to lifecycle events rather than owning the training loop.
-- MLflow’s `mlflow.start_run()` returns an `ActiveRun` that is a context manager; it auto‑closes on `with` exit, even on exceptions.
-- W&B recommends `with wandb.init() as run:`; the `Run` is the logging object and the context manager automatically finishes the run.
+# Design sources
+- HuggingFace Transformers callback system (event-driven logging hooks such as `on_log`, `on_train_begin`, `on_train_end` and a plugin-style integration list).
+- MLflow run lifecycle (`mlflow.start_run()` returns a context-managed `ActiveRun` and auto-ends on `with` exit).
+- Weights & Biases run lifecycle (`wandb.init()` returns a context-managed `Run` and auto-finishes on `with` exit).
 
-Design recommendation: split “Logger” vs “Run”
-To preserve context‑manager semantics (mlflow/wandb), make your Protocol return a run handle that itself is a context manager.
+# Design constraints
+- The logger must return a context-managed run handle.
+- The run handle must expose minimal, backend-agnostic logging methods.
+- The protocol should support backends that expect config/params and tags at run creation time.
 
-Suggested shape (conceptual):
+# Conceptual shape
 - `LoggerProtocol.start_run(...) -> RunProtocol`
-- `RunProtocol` implements `__enter__/__exit__` and logging methods (`log_params`, `log_metrics`, `log_artifact`, `set_tags`, `log_model`, `finish(status=...)`)
-- `Experiment` does:
-  `with logger.start_run(...) as run: ... run.log_metrics(...)`
+- `RunProtocol` implements `__enter__/__exit__` plus logging methods (`log_params`, `log_metrics`, `log_artifact`, `set_tags`, `log_model`, `finish(status=...)`).
+- `Experiment` uses: `with logger.start_run(...) as run: ... run.log_metrics(...)`.
 
-Why this helps:
-- W&B: `start_run` can wrap `wandb.init()` and return the `wandb.Run` object (which is already a context manager).
-- MLflow: `start_run` can call `mlflow.start_run()` and return the `ActiveRun` context manager; `__exit__` triggers `end_run` semantics.
-- For simple logging (stdout / JSONL), your `RunProtocol` can implement no‑op `__enter__/__exit__` and just write locally.
+# Notes
+- For simple local logging (stdout / JSONL), `RunProtocol` can be a no-op context manager.
+- If finer-grained event hooks are needed, add a separate callback interface rather than inflating the core run API.
 
-Optional: add callback‑style hooks for fine‑grained events
-Transformers uses callbacks with `on_log` / `on_train_begin` / `on_train_end` patterns. You can include optional hooks in `RunProtocol` or a separate `CallbackProtocol`, but keep the core run interface small.
+# Protocol signatures (draft)
 
-API ideas (concise)
-- `LoggerProtocol.start_run(name, config, tags, nested=False) -> RunProtocol`
-- `RunProtocol`:
-  - `__enter__`, `__exit__` (convert exceptions to “failed” status)
-  - `log_params(dict)`, `log_metrics(dict, step=None)`
-  - `log_artifact(path, name=None)`, `log_model(obj, name=None)`
-  - `set_tags(dict)`, `finish(status="success"|"failed")`
-- `CompositeLogger.start_run(...) -> CompositeRun` that fan‑outs to multiple underlying runs.
+```python
+from dataclasses import dataclass
+from typing import Any, Mapping, Protocol, Self
 
-If you want, I can propose a concrete Protocol signature and a minimal adapter sketch for `wandb` and `mlflow` next.
+
+Metrics = Mapping[str, float]
+Params = Mapping[str, Any]
+Tags = Mapping[str, str]
+
+
+class RunProtocol(Protocol):
+    def __enter__(self) -> Self: ...
+    def __exit__(self, exc_type, exc, tb) -> bool | None: ...
+
+    def log_params(self, params: Params) -> None: ...
+    def log_metrics(self, metrics: Metrics, step: int | None = None) -> None: ...
+    def set_tags(self, tags: Tags) -> None: ...
+    def log_artifact(self, path: str, name: str | None = None) -> None: ...
+    def log_model(self, model: Any, name: str | None = None) -> None: ...
+    def finish(self, status: str = "success") -> None: ...
+
+
+class LoggerProtocol(Protocol):
+    def start_run(
+        self,
+        name: str | None = None,
+        config: Params | None = None,
+        tags: Tags | None = None,
+        nested: bool = False,
+    ) -> RunProtocol: ...
+
+
+```
+
+# Minimal adapter sketches (draft)
+
+```python
+from dataclasses import dataclass
+from typing import Any
+
+# Optional import paths; adapters should guard imports in real code.
+import mlflow
+import wandb
+
+
+@dataclass
+class MLflowRunAdapter:
+    run: mlflow.ActiveRun
+
+    def __enter__(self) -> "MLflowRunAdapter":
+        self.run.__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool | None:
+        return self.run.__exit__(exc_type, exc, tb)
+
+    def log_params(self, params) -> None:
+        mlflow.log_params(dict(params))
+
+    def log_metrics(self, metrics, step: int | None = None) -> None:
+        mlflow.log_metrics(dict(metrics), step=step)
+
+    def set_tags(self, tags) -> None:
+        mlflow.set_tags(dict(tags))
+
+    def log_artifact(self, path: str, name: str | None = None) -> None:
+        if name is None:
+            mlflow.log_artifact(path)
+        else:
+            mlflow.log_artifact(path, artifact_path=name)
+
+    def log_model(self, model: Any, name: str | None = None) -> None:
+        if name is None:
+            name = "model"
+        # Minimal: let callers provide their own mlflow flavor wrappers.
+        mlflow.pyfunc.log_model(artifact_path=name, python_model=model)
+
+    def finish(self, status: str = "success") -> None:
+        # MLflow uses "FINISHED" or "FAILED".
+        if status == "failed":
+            mlflow.end_run(status="FAILED")
+        else:
+            mlflow.end_run(status="FINISHED")
+
+
+@dataclass
+class MLflowLogger:
+    experiment_name: str | None = None
+
+    def start_run(self, name=None, config=None, tags=None, nested=False) -> MLflowRunAdapter:
+        if self.experiment_name:
+            mlflow.set_experiment(self.experiment_name)
+        active = mlflow.start_run(run_name=name, nested=nested)
+        run = MLflowRunAdapter(active)
+        if config:
+            run.log_params(config)
+        if tags:
+            run.set_tags(tags)
+        return run
+
+
+@dataclass
+class WandbRunAdapter:
+    run: wandb.sdk.wandb_run.Run
+
+    def __enter__(self) -> "WandbRunAdapter":
+        self.run.__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool | None:
+        return self.run.__exit__(exc_type, exc, tb)
+
+    def log_params(self, params) -> None:
+        # W&B config is the conventional place for params.
+        self.run.config.update(dict(params), allow_val_change=True)
+
+    def log_metrics(self, metrics, step: int | None = None) -> None:
+        if step is None:
+            self.run.log(dict(metrics))
+        else:
+            self.run.log(dict(metrics), step=step)
+
+    def set_tags(self, tags) -> None:
+        # W&B has tags on the run; merge with existing tags.
+        existing = set(self.run.tags or [])
+        self.run.tags = sorted(existing | set(tags.values()))
+
+    def log_artifact(self, path: str, name: str | None = None) -> None:
+        artifact_name = name or "artifact"
+        artifact = wandb.Artifact(artifact_name, type="file")
+        artifact.add_file(path)
+        self.run.log_artifact(artifact)
+
+    def log_model(self, model: Any, name: str | None = None) -> None:
+        # Minimal placeholder: store as artifact via serialization handled by caller.
+        # For now, expect `model` to be a path or file-like identifier.
+        if isinstance(model, str):
+            self.log_artifact(model, name=name or "model")
+
+    def finish(self, status: str = "success") -> None:
+        # W&B finishes on exit, but explicit finish is ok.
+        self.run.finish(exit_code=1 if status == "failed" else 0)
+
+
+@dataclass
+class WandbLogger:
+    project: str | None = None
+    entity: str | None = None
+
+    def start_run(self, name=None, config=None, tags=None, nested=False) -> WandbRunAdapter:
+        run = wandb.init(project=self.project, entity=self.entity, name=name, config=config or {}, tags=list(tags.values()) if tags else None, reinit=nested)
+        return WandbRunAdapter(run)
+```
