@@ -1,3 +1,152 @@
-# eksperiment
+# Eksperiment
 
-Experimental library
+Eksperiment is a lightweight experiment runner for sklearn pipelines. It keeps
+modeling code focused on data and pipelines while standardizing the fit/evaluate
+loop, logging, and hyperparameter search workflows.
+
+## Why eksperiment?
+
+Machine learning code tends to accumulate boilerplate: fitting models, computing
+metrics, logging results, running cross-validation, searching hyperparameters.
+Each project reinvents this wheel slightly differently, making code harder to
+review, test, and reproduce.
+
+eksperiment solves this by providing a thin, opinionated wrapper around sklearn
+that enforces good practices while staying out of your way.
+
+### The problem it solves
+
+Consider a typical ML workflow without eksperiment:
+
+```text
+# Fit
+model.fit(X_train, y_train)
+
+# Evaluate (hope you remembered all the metrics)
+y_pred = model.predict(X_test)
+print("accuracy:", accuracy_score(y_test, y_pred))
+print("f1:", f1_score(y_test, y_pred))
+
+# Cross-validate (different API)
+scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
+print("cv mean:", scores.mean())
+
+# Search (yet another API)
+grid = GridSearchCV(model, param_grid, cv=5, scoring="accuracy")
+grid.fit(X, y)
+print("best:", grid.best_params_)
+
+# Log somewhere (MLflow? W&B? CSV?)
+mlflow.log_metric("accuracy", acc)
+mlflow.log_params(grid.best_params_)
+```
+
+Each operation has a different API. Logging is tightly coupled to a specific
+backend. Metrics are computed ad-hoc. It's easy to forget a step or log
+inconsistently.
+
+### How eksperiment helps
+
+```text
+from eksperiment.experiment import Experiment
+
+experiment = Experiment(
+    pipeline=pipeline,
+    scorers={"accuracy": "accuracy", "f1": "f1"},
+    logger=mlflow_logger,  # or wandb, or none
+    name="my-experiment",
+)
+
+# Consistent API for everything
+fit_result = experiment.fit(X_train, y_train, run_name="fit")
+eval_result = experiment.evaluate(fit_result.estimator, X_test, y_test, run_name="eval")
+cv_result = experiment.cross_validate(X, y, cv=5, run_name="cv")
+search_result = experiment.search(config, X, y, cv=5, run_name="search")
+```
+
+Every method:
+
+- Uses the same scorers you defined once
+- Logs automatically to whatever backend you configured
+- Returns structured results you can inspect programmatically
+- Works with any sklearn-compatible pipeline
+
+### Core benefits
+
+**1. Standardized workflow**
+
+One API for fit, evaluate, cross-validate, and search. Define your scorers once;
+they're used consistently everywhere.
+
+**2. Backend-agnostic logging**
+
+Swap between MLflow, Weights & Biases, or no logging at all without changing
+your modeling code. eksperiment uses a simple protocol—write your own adapter
+in 20 lines if needed.
+
+**3. Pipeline-first design**
+
+eksperiment requires sklearn Pipelines, not raw estimators. This isn't
+arbitrary—pipelines prevent data leakage by keeping preprocessing inside the
+cross-validation loop. If you're not using pipelines, you're probably leaking.
+
+**4. Searchable, comparable runs**
+
+Every run logs its parameters, metrics, and tags consistently. Compare
+experiments across time, across team members, across hyperparameter
+configurations.
+
+**5. Testable tutorials**
+
+Because eksperiment tutorials are runnable Python, they double as integration
+tests. Your documentation stays in sync with your code.
+
+## Quick example
+
+```python
+from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from eksperiment.experiment import Experiment
+
+X, y = load_iris(return_X_y=True)
+
+pipeline = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", LogisticRegression(max_iter=200)),
+])
+
+experiment = Experiment(
+    pipeline=pipeline,
+    scorers={"accuracy": "accuracy"},
+    name="iris-quickstart",
+)
+
+# Fit and evaluate
+fit_result = experiment.fit(X, y, run_name="fit")
+print("fit complete")
+
+# Cross-validate for robust estimation
+cv_result = experiment.cross_validate(X, y, cv=3, run_name="cv")
+print(f"CV accuracy: {cv_result.metrics['cv/accuracy_mean']:.3f}")
+```
+
+## What's next
+
+- [Tutorials](tutorials/experiment.md): Learn eksperiment step by step
+- [API Reference](api/index.md): Detailed method documentation
+- [Glossary](glossary.md): Core concepts explained
+
+## Installation
+
+```bash
+pip install eksperiment
+```
+
+For Optuna support:
+
+```bash
+pip install eksperiment[optuna]
+```
