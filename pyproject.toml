@@ -20,6 +20,13 @@ dev = [
     "ruff>=0.14.11",
     "scikit-learn>=1.7.2",
 ]
+docs = [
+    "mkdocstrings-python",
+    "zensical",
+]
+
+[tool.uv]
+default-groups = ["dev", "docs"]
 
 [tool.ruff]
 line-length = 88
