@@ -5,9 +5,105 @@
 
 # Eksperiment
 
-A lightweight experiment runner for Python ML (starting with scikit‑learn). The core idea is an `Experiment` class that accepts a sklearn `Pipeline`, an optional Optuna config dict, and a logger utility for structured experiment logging.
+A zero-boilerplate experiment runner for sklearn pipelines. One thing, done well: **run experiments**.
 
-## Goals
-- Keep the API small, explicit, and backend‑agnostic.
-- Provide first‑class support for context‑managed logger runs.
-- Start sklearn‑first, with optional integrations (Optuna, W&B).
+**The promise:** Give me a pipeline, I'll give you answers.
+
+## What It Does
+
+```python
+from eksperiment import Experiment
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+pipeline = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", LogisticRegression()),
+])
+
+experiment = Experiment(
+    pipeline=pipeline,
+    scorers={"accuracy": "accuracy", "f1": "f1_macro"},
+)
+
+# Fit — train, get params logged
+result = experiment.fit(X_train, y_train)
+
+# Evaluate — metrics + predictions + diagnostics, no boilerplate
+result = experiment.evaluate(result.estimator, X_test, y_test)
+
+# Cross-validate — per-fold transparency, not just a number
+result = experiment.cross_validate(X, y, cv=5)
+
+# Search — all trials logged, not just the winner
+result = experiment.search(GridSearchConfig(param_grid={...}), X, y, cv=5)
+```
+
+## Why
+
+Data scientists waste time on:
+- Writing the same logging code for every experiment
+- Forgetting to save predictions, then needing them later
+- Copy-pasting matplotlib code for confusion matrices and ROC curves
+- Getting a single number from `cross_val_score` with no insight into fold variance
+
+Eksperiment removes this friction. Results include predictions, probabilities, and diagnostics automatically. Inject a logger once, everything gets tracked. No sprinkling `mlflow.log_*` through your code.
+
+## Philosophy
+
+> **Be useful. No bloat. So elegant it's familiar. Abstractions that are not obstructions. Provide value.**
+
+- **BE USEFUL** — Every feature solves a real pain point. If it doesn't help you iterate faster, it doesn't belong.
+- **NO BLOAT** — No distributed training, no deployment, no MLOps platform. Just experiments, done well.
+- **SO ELEGANT IT'S FAMILIAR** — The API feels like sklearn because sklearn got it right. No new abstractions to learn.
+- **ABSTRACTIONS, NOT OBSTRUCTIONS** — We remove tedium, not control. You can always drop down to raw sklearn.
+- **PROVIDE VALUE** — Every line of code must earn its place. We ship what helps, not what's clever.
+- **DOCS ARE CODE** — Every code example runs. If the docs lie, the build fails.
+
+## Install
+
+```bash
+pip install eksperiment
+
+# With optional integrations
+pip install eksperiment[optuna]   # Optuna search
+pip install eksperiment[mlflow]   # MLflow logging
+pip install eksperiment[wandb]    # W&B logging
+```
+
+## Documentation
+
+See the [docs](docs/) for tutorials and API reference.
+
+## Contributing
+
+### Process
+
+1. Draft a plan in `plans/` before coding (Goal, Design, How to test)
+2. Sketch the API before implementing
+3. Keep changes small and reviewable
+
+### Setup
+
+```bash
+# Prerequisites: Python 3.11+, uv, just
+uv sync                    # Install deps (dev + docs groups)
+```
+
+### Commands
+
+```bash
+just test      # Run tests with optuna extra
+just lint      # Ruff check + type check
+just format    # Ruff format
+just docs      # Serve docs locally
+```
+
+### Testing
+
+- **Docs are code**: every code fence in `docs/` is executed by pytest. If the docs lie, the build fails.
+- Integration tests over mocks
+- Fast and deterministic: small datasets, fixed seeds
+
+See [AGENTS.md](AGENTS.md) for full contributing guidelines.
