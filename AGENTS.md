@@ -96,6 +96,95 @@ No flags to enable. No forgetting. It just happens.
 - Fast and deterministic: small datasets, fixed seeds, low CV folds.
 - Skip gracefully when optional deps missing.
 
+---
+
+## Documentation Philosophy
+
+> **Docs teach. Code shows. Neither assumes.**
+
+Documentation is a product. We ship it like one.
+
+### The Three Principles
+
+1. **Problem first, solution second.** Every explanation starts with *why* before *how*.
+2. **Explain at point of use.** Don't front-load theory. Introduce concepts when the reader needs them.
+3. **Link for depth, explain for correctness.** Provide enough context to use the feature correctly; link to authoritative sources for deeper dives.
+
+### Writing Rules
+
+**Never assume prior knowledge.** A junior data scientist should follow any tutorial. If you mention a concept, explain it or link to an explanation.
+
+**Start with the problem.** Before explaining what something does, explain what problem it solves.
+
+**Use concept boxes for theory:**
+```markdown
+> **Concept: Data Leakage**
+>
+> Data leakage occurs when information from outside the training set
+> influences model training. eksperiment prevents this by requiring pipelines.
+```
+
+**Show "what just happened."** After code blocks, explain what the code did.
+
+**Provide decision guides.** When multiple approaches exist, give a decision table:
+```markdown
+| Situation | Recommendation |
+|-----------|----------------|
+| Small grid | Grid search |
+| Expensive evals | Optuna |
+```
+
+**Include "why it matters."** Connect concepts to practical consequences.
+
+**End with next steps.** Link to related tutorials.
+
+**Link to primary sources.** Cite papers for algorithms.
+
+### Tone
+
+- **Be direct:** "eksperiment requires pipelines" not "you might want to consider..."
+- **Be confident:** "This prevents leakage" not "This can help prevent..."
+- **Use second person:** "You'll notice..." not "One notices..."
+- **Acknowledge tradeoffs:** Don't just praise; note limitations
+
+### Code Examples
+
+- **Must run.** Every code fence is tested. Broken examples fail the build.
+- **Show imports.** Don't assume the reader knows which module a class comes from.
+- **Use real datasets.** Prefer `load_iris`, `load_breast_cancer` for reproducibility.
+- **Set random seeds.** Always `random_state=42` or `rng = np.random.default_rng(42)`.
+
+### Tutorial Template
+
+```markdown
+# Title
+
+**What you'll learn:**
+- Bullet 1
+- Bullet 2
+
+**Prerequisites:** [Links]
+
+## The Problem
+[Why this matters]
+
+## Concept: X (if needed)
+[2-4 paragraphs with "Why it matters"]
+
+## Implementation
+[Code + "What just happened"]
+
+## Best Practices
+[Numbered list]
+
+## Further Reading
+[Links to papers, sklearn docs]
+```
+
+See [docs/developer/writing-docs.md](docs/developer/writing-docs.md) for the full style guide.
+
+---
+
 ## Key Lessons
 
 - Clean split between quick configs and power-user escape hatches
