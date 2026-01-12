@@ -7,5 +7,8 @@ lint:
     uvx ruff format --check -- src
     uvx ty check
 
+test:
+    uv run --extra optuna pytest
+
 docs:
     uv run zensical serve
