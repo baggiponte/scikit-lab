@@ -1,7 +1,7 @@
 # Experiment v1 API
 
 ## Goal
-Define a minimal, sklearn-first `Experiment` API that separates training, evaluation, and tuning while keeping data handling and splits outside the core class. The spec should be explicit about intent (no silent hyperparameter search defaults) and align with the logger protocol.
+Define a minimal, sklearn-first `Experiment` API that separates training, evaluation, and search while keeping data handling and splits outside the core class. The spec should be explicit about intent (no silent hyperparameter search defaults) and align with the logger protocol.
 
 ## References
 - `plans/logger-protocol.md`
@@ -10,7 +10,7 @@ Define a minimal, sklearn-first `Experiment` API that separates training, evalua
 ## Design
 ### Core principles
 - Keep `Experiment` state minimal: pipeline + logger + optional name/tags. Do not store datasets.
-- Make lifecycle explicit: `fit()` trains, `evaluate()` measures, `tune()` searches. No implicit GridSearchCV fallback.
+- Make lifecycle explicit: `fit()` trains, `evaluate()` measures, `search()` searches. No implicit GridSearchCV fallback.
 - Keep split logic out of the core API; callers pass pre-split data or CV strategies.
 - Logger uses a context-managed run handle with minimal run API.
 
@@ -39,7 +39,7 @@ Define a minimal, sklearn-first `Experiment` API that separates training, evalua
   - If `refit=True`, fits a final estimator on full data and logs it.
   - Implementation should rely on sklearn primitives rather than calling `fit()`/`evaluate()` directly, but may share internal helpers for scorer resolution, logging shape, and final refit.
 
-- `tune(search_config, X, y=None, *, cv, n_trials=None, timeout=None) -> TuneResult`
+- `search(search, X, y=None, *, cv, n_trials=None, timeout=None) -> SearchResult`
   - Runs hyperparameter search using an explicit `search_config`.
   - Uses `self.scorers` configured at init.
   - No implicit fallback to sklearn search if Optuna config is missing.
@@ -49,11 +49,11 @@ Define a minimal, sklearn-first `Experiment` API that separates training, evalua
 - `SearchConfig` union:
   - `OptunaSearchConfig`: study parameters + search space + objective config
   - `SklearnSearchConfig`: Grid/Randomized search params
-- `tune()` dispatches based on config type; integration modules hold vendor-specific behavior.
+- `search()` dispatches based on config type; integration modules hold vendor-specific behavior.
 
 ### Data handling and splits
 - `Experiment` does not perform train/test splitting.
-- Callers provide `X_train`, `X_val`, etc., or pass `cv` splitters to `cross_validate()`/`tune()`.
+- Callers provide `X_train`, `X_val`, etc., or pass `cv` splitters to `cross_validate()`/`search()`.
 - Provide optional helper utilities outside core API if needed later.
 
 ### Logging expectations
@@ -65,7 +65,7 @@ Define a minimal, sklearn-first `Experiment` API that separates training, evalua
   - `fit()` logs params + artifact and returns a fitted estimator.
   - `evaluate()` logs metrics for a provided estimator.
   - `cross_validate()` respects `cv` splitter and logs metrics; `refit=True` logs final model.
-  - `tune()` requires explicit `search_config`; verify no fallback behavior.
+  - `search()` requires explicit `search` input; verify no fallback behavior.
 - Use simple sklearn pipelines (e.g., `StandardScaler` + `LogisticRegression`) with small datasets.
 
 ## Future considerations
