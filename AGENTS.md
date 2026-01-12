@@ -7,6 +7,7 @@ Eksperiment is a lightweight experiment runner for Python ML (starting with scik
 - Iterate first: sketch interfaces, examples, and tradeoffs before writing a design doc.
 - Prefer small, reviewable changes over big jumps.
 - Keep plans/specs in `plans/` as markdown; promote to a design doc only after the API stabilizes.
+- Plan specs in `plans/` must include sections: Goal, References, Design, How to test.
 - Ask a short clarification question only when decisions are blocking.
 - Keep scope tight: focus on sklearn-first, optional optuna + wandb integrations.
 
@@ -15,6 +16,8 @@ Eksperiment is a lightweight experiment runner for Python ML (starting with scik
 - Keep public APIs minimal and backend‑agnostic; avoid coupling core types to vendor SDKs.
 - Favor explicit lifecycle methods and context‑managed runs for loggers.
 - Use clear, short names; avoid over‑abstracting.
+- Leave `__init__.py` files empty.
+- Prefer integration tests; avoid monkey patching as much as possible.
 
 ## Logging design direction (current)
 - Logger protocol should return a context‑managed run handle.
