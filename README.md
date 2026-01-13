@@ -2,7 +2,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 
-# Sklab
+# 🧪 sklab
 
 A zero-boilerplate experiment runner for sklearn pipelines. One thing, done well: **run experiments**.
 
@@ -12,6 +12,7 @@ A zero-boilerplate experiment runner for sklearn pipelines. One thing, done well
 
 ```python
 from sklab import Experiment
+from sklab.search import GridSearchConfig
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -39,7 +40,7 @@ result = experiment.cross_validate(X, y, cv=5)
 result = experiment.search(GridSearchConfig(param_grid={...}), X, y, cv=5)
 ```
 
-## Why
+## 🪄 Why
 
 Data scientists waste time on:
 - Writing the same logging code for every experiment
@@ -48,17 +49,6 @@ Data scientists waste time on:
 - Getting a single number from `cross_val_score` with no insight into fold variance
 
 Sklab removes this friction. Results include predictions, probabilities, and diagnostics automatically. Inject a logger once, everything gets tracked. No sprinkling `mlflow.log_*` through your code.
-
-## Philosophy
-
-> **Be useful. No bloat. So elegant it's familiar. Abstractions that are not obstructions. Provide value.**
-
-- **BE USEFUL** — Every feature solves a real pain point. If it doesn't help you iterate faster, it doesn't belong.
-- **NO BLOAT** — No distributed training, no deployment, no MLOps platform. Just experiments, done well.
-- **SO ELEGANT IT'S FAMILIAR** — The API feels like sklearn because sklearn got it right. No new abstractions to learn.
-- **ABSTRACTIONS, NOT OBSTRUCTIONS** — We remove tedium, not control. You can always drop down to raw sklearn.
-- **PROVIDE VALUE** — Every line of code must earn its place. We ship what helps, not what's clever.
-- **DOCS ARE CODE** — Every code example runs. If the docs lie, the build fails.
 
 ## Install
 
@@ -71,13 +61,18 @@ uv add "sklab[mlflow]"   # MLflow logging
 uv add "sklab[wandb]"    # W&B logging
 ```
 
-## Documentation
+## 🤗 Contributing
 
-See the [docs](docs/) for tutorials and API reference.
+### Philosophy
 
-Our docs follow a strict philosophy: **problem first, solution second**. Every tutorial explains *why* before *how*, never assumes prior knowledge, and includes runnable code examples tested by CI.
+> **Be useful. No bloat. So elegant it's familiar. Abstractions that are not obstructions. Provide value.**
 
-## Contributing
+- **Be useful** — Every feature solves a real pain point. If it doesn't help you iterate faster, it doesn't belong.
+- **No bloat** — No distributed training, no deployment, no MLOps platform. Just experiments, done well.
+- **So elegant it's familiar** — The API feels like sklearn because sklearn got it right. No new abstractions to learn.
+- **Abstractions, not obstructions** — We remove tedium, not control. You can always drop down to raw sklearn.
+- **Provide value** — Every line of code must earn its place. We ship what helps, not what's clever.
+- **Docs are code** — Every code example runs. If the docs lie, the build fails.
 
 ### Process
 
@@ -125,7 +120,6 @@ Documentation is a product. We ship it like one.
 |------|---------|
 | Never assume | Don't say "avoid leakage"—explain what leakage is |
 | Start with the problem | "Most models have hyperparameters that need tuning..." not "Grid search evaluates..." |
-| Use concept boxes | `> **Concept: Data Leakage**` blockquotes for theory |
 | Show "what happened" | Explain what code did after each block |
 | Provide decision tables | When to use X vs Y in table format |
 | Include "why it matters" | Connect concepts to practical consequences |
@@ -140,7 +134,3 @@ Documentation is a product. We ship it like one.
 - Set random seeds for reproducibility
 
 See [docs/developer/writing-docs.md](docs/developer/writing-docs.md) for the full style guide.
-
----
-
-See [AGENTS.md](AGENTS.md) for full contributing guidelines.
