@@ -6,7 +6,8 @@
       "WebFetch(domain:inria.github.io)",
       "Bash(uv run:*)",
       "Bash(uv add:*)",
-      "Bash(uv sync:*)"
+      "Bash(uv sync:*)",
+      "Bash(just test:*)"
     ]
   }
 }
