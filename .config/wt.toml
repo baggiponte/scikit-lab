@@ -1,0 +1,2 @@
+[post-create]
+install = "uv sync"
