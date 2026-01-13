@@ -11,8 +11,8 @@ from sklearn.metrics import get_scorer
 from sklearn.model_selection import cross_validate as sklearn_cross_validate
 from sklearn.utils.validation import check_is_fitted
 
-from sklab.logging.adapters import NoOpLogger
-from sklab.logging.interfaces import LoggerProtocol
+from sklab.adapters.interfaces import LoggerProtocol
+from sklab.logging import NoOpLogger
 from sklab.search import SearchConfigProtocol, SearcherProtocol
 
 MetricFunc = Callable[[Any, Any, Any], float]

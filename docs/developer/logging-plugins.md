@@ -17,7 +17,7 @@ backend-agnostic while letting you integrate any tracker.
 from dataclasses import dataclass
 from typing import Any
 
-from sklab.logging.interfaces import LoggerProtocol, RunProtocol
+from sklab.adapters.interfaces import LoggerProtocol, RunProtocol
 
 @dataclass
 class ConsoleRun:
