@@ -64,12 +64,12 @@ Sklab removes this friction. Results include predictions, probabilities, and dia
 ## Install
 
 ```bash
-pip install sklab
+uv add sklab
 
 # With optional integrations
-pip install sklab[optuna]   # Optuna search
-pip install sklab[mlflow]   # MLflow logging
-pip install sklab[wandb]    # W&B logging
+uv add "sklab[optuna]"   # Optuna search
+uv add "sklab[mlflow]"   # MLflow logging
+uv add "sklab[wandb]"    # W&B logging
 ```
 
 ## Documentation
