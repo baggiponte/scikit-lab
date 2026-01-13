@@ -25,6 +25,7 @@ dev = [
     "ruff>=0.14.11",
 ]
 test = [
+    "sklab[optuna,wandb,mlflow]",
     "pandas>=2.3.3",
     "polars>=1.37.0",
     "pytest-markdown-docs>=0.9.0",
@@ -36,7 +37,7 @@ docs = [
 ]
 
 [tool.uv]
-default-groups = ["dev", "docs"]
+default-groups = ["dev", "docs", "test"]
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib", "--markdown-docs"]
