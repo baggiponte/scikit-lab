@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:news.ycombinator.com)"
+      "WebFetch(domain:news.ycombinator.com)",
+      "WebFetch(domain:inria.github.io)"
     ]
   }
 }
