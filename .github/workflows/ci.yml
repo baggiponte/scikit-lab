@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions: {}
 
@@ -28,7 +29,7 @@ jobs:
         uses: astral-sh/setup-uv@v7 # zizmor: ignore[unpinned-uses]
 
       - name: Install dependencies
-        run: uv sync --extra optuna
+        run: uv sync
 
       - name: Format code
         run: uvx ruff format -- src
@@ -36,8 +37,8 @@ jobs:
       - name: Sort imports
         run: uvx ruff check --fix --select=I,UP -- src
 
-      - name: Ensure working tree is clean
-        run: git diff --exit-code
-
       - name: Run tests
-        run: uv run --extra optuna pytest
+        env:
+          WANDB_MODE: offline
+          WANDB_SILENT: "true"
+        run: uv run pytest

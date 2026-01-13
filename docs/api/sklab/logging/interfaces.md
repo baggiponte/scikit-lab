@@ -1,11 +1,11 @@
-# sklab.logging.interfaces
+# sklab.adapters.interfaces
 
-::: sklab.logging.interfaces.LoggerProtocol
+::: sklab.adapters.interfaces.LoggerProtocol
     options:
       show_root_heading: true
       show_object_full_path: false
 
-::: sklab.logging.interfaces.RunProtocol
+::: sklab.adapters.interfaces.RunProtocol
     options:
       show_root_heading: true
       show_object_full_path: false

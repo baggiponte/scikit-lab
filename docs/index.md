@@ -73,7 +73,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklab.experiment import Experiment
-from sklab.logging.adapters import NoOpLogger
+from sklab.logging import NoOpLogger
 from sklab.search import GridSearchConfig
 
 X, y = load_iris(return_X_y=True)

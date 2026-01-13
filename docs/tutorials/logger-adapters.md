@@ -97,7 +97,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklab.experiment import Experiment
-from sklab.logging.adapters import WandbLogger
+from sklab.logging import WandbLogger
 
 X, y = load_iris(return_X_y=True)
 
@@ -143,7 +143,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklab.experiment import Experiment
-from sklab.logging.adapters import MLflowLogger
+from sklab.logging import MLflowLogger
 
 X, y = load_iris(return_X_y=True)
 
@@ -203,7 +203,7 @@ backend—databases, cloud storage, custom dashboards.
 from dataclasses import dataclass
 from typing import Any
 
-from sklab.logging.interfaces import LoggerProtocol, RunProtocol
+from sklab.adapters.interfaces import LoggerProtocol, RunProtocol
 
 
 @dataclass

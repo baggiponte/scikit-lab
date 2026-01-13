@@ -23,7 +23,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklab.experiment import Experiment
-from sklab.logging.adapters import NoOpLogger
+from sklab.logging import NoOpLogger
 
 pipeline = Pipeline([
     ("scale", StandardScaler()),
@@ -234,7 +234,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.pipeline import Pipeline
 
 from sklab.experiment import Experiment
-from sklab.logging.adapters import MLflowLogger, WandbLogger
+from sklab.logging import MLflowLogger, WandbLogger
 
 pipeline = Pipeline([("model", DummyClassifier(strategy="most_frequent"))])
 scorers = {"accuracy": "accuracy"}
