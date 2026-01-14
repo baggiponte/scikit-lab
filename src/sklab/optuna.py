@@ -9,7 +9,10 @@ from typing import Any
 from sklearn.base import clone
 from sklearn.model_selection import cross_val_score
 
+from sklab._lazy import LazyModule
 from sklab.search import Scorer, Scorers
+
+optuna = LazyModule("optuna", install_hint="Install it with `uv add optuna`.")
 
 
 @dataclass(slots=True)
@@ -64,7 +67,6 @@ class OptunaSearcher:
     best_estimator_: Any | None = None
 
     def fit(self, X: Any, y: Any | None = None) -> OptunaSearcher:  # noqa: N803
-        optuna = _require_optuna()
         scoring = _resolve_scoring(self.scoring, self.scorers)
         scorer = _pick_primary_scorer(scoring)
 
@@ -98,16 +100,6 @@ class OptunaSearcher:
             clone(self.pipeline).set_params(**self.best_params_).fit(X, y)
         )
         return self
-
-
-def _require_optuna() -> Any:
-    try:
-        import optuna
-    except ModuleNotFoundError as exc:  # pragma: no cover - runtime dependency
-        raise ModuleNotFoundError(
-            "Optuna is required. Install it with `uv add optuna`."
-        ) from exc
-    return optuna
 
 
 def _resolve_scoring(
