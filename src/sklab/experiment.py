@@ -11,7 +11,7 @@ from sklearn.metrics import get_scorer
 from sklearn.model_selection import cross_validate as sklearn_cross_validate
 from sklearn.utils.validation import check_is_fitted
 
-from sklab.adapters.interfaces import LoggerProtocol
+from sklab.adapters.logging import LoggerProtocol
 from sklab.logging import NoOpLogger
 from sklab.search import SearchConfigProtocol, SearcherProtocol
 
@@ -256,7 +256,7 @@ def _build_searcher(
     n_trials: int | None,
     timeout: float | None,
 ) -> Any:
-    if hasattr(search, "create_searcher"):
+    if isinstance(search, SearchConfigProtocol):
         return search.create_searcher(
             pipeline=pipeline,
             scorers=scorers,
