@@ -6,15 +6,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
+from sklab._lazy import LazyModule
 
-def _require_wandb() -> Any:
-    try:
-        import wandb
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            "wandb is not installed. Install sklab with the 'wandb' extra."
-        ) from exc
-    return wandb
+wandb = LazyModule("wandb", install_hint="Install sklab with the 'wandb' extra.")
 
 
 @dataclass
@@ -31,7 +25,6 @@ class WandbLogger:
 
     @contextmanager
     def start_run(self, name=None, config=None, tags=None, nested=False):
-        wandb = _require_wandb()
         with wandb.init(
             project=self.project,
             entity=self.entity,
@@ -55,7 +48,6 @@ class WandbLogger:
         self._run.tags = sorted(existing | set(tags.values()))
 
     def log_artifact(self, path: str, name: str | None = None) -> None:
-        wandb = _require_wandb()
         artifact = wandb.Artifact(name or "artifact", type="file")
         artifact.add_file(path)
         self._run.log_artifact(artifact)

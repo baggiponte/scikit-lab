@@ -6,15 +6,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
+from sklab._lazy import LazyModule
 
-def _require_mlflow() -> Any:
-    try:
-        import mlflow
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            "mlflow is not installed. Install mlflow to use MLflowLogger."
-        ) from exc
-    return mlflow
+mlflow = LazyModule("mlflow", install_hint="Install mlflow to use MLflowLogger.")
 
 
 @dataclass
@@ -29,7 +23,6 @@ class MLflowLogger:
 
     @contextmanager
     def start_run(self, name=None, config=None, tags=None, nested=False):
-        mlflow = _require_mlflow()
         if self.experiment_name:
             mlflow.set_experiment(self.experiment_name)
         with mlflow.start_run(run_name=name, nested=nested):
@@ -40,21 +33,19 @@ class MLflowLogger:
             yield self
 
     def log_params(self, params) -> None:
-        _require_mlflow().log_params(dict(params))
+        mlflow.log_params(dict(params))
 
     def log_metrics(self, metrics, step: int | None = None) -> None:
-        _require_mlflow().log_metrics(dict(metrics), step=step)
+        mlflow.log_metrics(dict(metrics), step=step)
 
     def set_tags(self, tags) -> None:
-        _require_mlflow().set_tags(dict(tags))
+        mlflow.set_tags(dict(tags))
 
     def log_artifact(self, path: str, name: str | None = None) -> None:
-        mlflow = _require_mlflow()
         if name is None:
             mlflow.log_artifact(path)
         else:
             mlflow.log_artifact(path, name=name)
 
     def log_model(self, model: Any, name: str | None = None) -> None:
-        mlflow = _require_mlflow()
         mlflow.sklearn.log_model(model, name=name or "model")
