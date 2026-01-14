@@ -1,3 +1,5 @@
+set quiet := true
+
 format:
     uvx ruff format -- src
     uvx ruff check --fix --select=I,UP -- src
