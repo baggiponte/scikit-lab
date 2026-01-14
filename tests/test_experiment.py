@@ -10,6 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklab.experiment import Experiment
+from sklab.search import SearcherProtocol
 
 
 def _make_pipeline() -> Pipeline:
@@ -71,13 +72,13 @@ def test_search_accepts_searcher() -> None:
     pipeline = _make_pipeline()
 
     @dataclass
-    class DummySearch:
+    class DummySearch(SearcherProtocol):
         estimator: Pipeline
         best_params_: dict[str, float] | None = None
         best_score_: float | None = None
         best_estimator_: Pipeline | None = None
 
-        def fit(self, X, y=None):
+        def fit(self, X, y=None) -> SearcherProtocol:
             self.best_params_ = {"model__C": 1.0}
             self.best_score_ = 0.5
             self.best_estimator_ = clone(self.estimator).fit(X, y)

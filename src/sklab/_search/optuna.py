@@ -10,7 +10,7 @@ from sklearn.base import clone
 from sklearn.model_selection import cross_val_score
 
 from sklab._lazy import LazyModule
-from sklab.search import Scorer, Scorers
+from sklab.type_aliases import Scorer, Scorers
 
 optuna = LazyModule("optuna", install_hint="Install it with `uv add optuna`.")
 
@@ -114,7 +114,7 @@ def _resolve_scoring(
 
 
 def _pick_primary_scorer(scoring: Scorer | Mapping[str, Scorer]) -> Scorer:
-    if isinstance(scoring, dict):
+    if isinstance(scoring, Mapping):
         if not scoring:
             raise ValueError("At least one scorer is required for search.")
         return next(iter(scoring.values()))

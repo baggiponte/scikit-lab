@@ -23,7 +23,6 @@ nav = [
   {"API Reference" = [
     "api/sklab/experiment.md",
     "api/sklab/search.md",
-    "api/sklab/optuna.md",
     "api/sklab/logging/interfaces.md",
     "api/sklab/logging/adapters.md",
   ]},

@@ -1,11 +1,12 @@
 """Protocols to add new searchers that are not supported by sklab."""
 
 from collections.abc import Mapping
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from sklab.type_aliases import Scorers
 
 
+@runtime_checkable
 class SearcherProtocol(Protocol):
     """Minimal interface required by Experiment.search."""
 
@@ -17,6 +18,7 @@ class SearcherProtocol(Protocol):
     best_estimator_: Any | None
 
 
+@runtime_checkable
 class SearchConfigProtocol(Protocol):
     """Config that can build a searcher for Experiment.search."""
 
