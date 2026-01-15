@@ -2,16 +2,20 @@
   "permissions": {
     "allow": [
       "Bash(gh pr checks:*)",
+      "Bash(gh pr create:*)",
       "Bash(gh pr list:*)",
       "Bash(gh run view:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
       "Bash(just test:*)",
       "Bash(uv add:*)",
       "Bash(uv run:*)",
       "Bash(uv sync:*)",
+      "Bash(uvx:*)",
       "WebFetch(domain:inria.github.io)",
       "WebFetch(domain:laike9m.com)",
-      "WebFetch(domain:news.ycombinator.com)",
-      "WebSearch",
+      "WebSearch"
     ]
   }
 }
