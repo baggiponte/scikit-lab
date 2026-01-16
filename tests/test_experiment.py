@@ -13,8 +13,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from sklab.experiment import Experiment
 from sklab.search import SearcherProtocol
-
-from .conftest import InMemoryLogger, make_data, make_pipeline
+from tests.conftest import InMemoryLogger, make_data, make_pipeline
 
 
 class TestFit:

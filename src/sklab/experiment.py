@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklab.adapters.logging import LoggerProtocol
 from sklab.logging import NoOpLogger
 from sklab.search import SearchConfigProtocol, SearcherProtocol
-from sklab.type_aliases import ScorerFunc, ScorerName, Scoring
+from sklab.type_aliases import ScorerFunc, Scoring
 
 
 @dataclass(slots=True)

@@ -10,7 +10,7 @@ from sklearn.base import clone
 from sklearn.model_selection import cross_val_score
 
 from sklab._lazy import LazyModule
-from sklab.type_aliases import Direction, ScorerName, Scoring
+from sklab.type_aliases import Direction, Scoring
 
 if TYPE_CHECKING:
     from optuna.study import Study
