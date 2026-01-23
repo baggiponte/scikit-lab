@@ -19,6 +19,9 @@ wandb = [
 mlflow = [
     "mlflow>=3.8.1",
 ]
+shap = [
+    "shap>=0.42",
+]
 
 [dependency-groups]
 dev = [
@@ -27,7 +30,7 @@ dev = [
     "ruff>=0.14.11",
 ]
 test = [
-    "sklab[optuna,wandb,mlflow]",
+    "sklab[optuna,wandb,mlflow,shap]",
     "pandas>=2.3.3",
     "polars>=1.37.0",
     "pytest-markdown-docs>=0.9.0",
