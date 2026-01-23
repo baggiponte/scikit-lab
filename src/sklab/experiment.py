@@ -16,16 +16,11 @@ from sklearn.utils.validation import check_is_fitted
 from sklab._explain import (
     ExplainerModel,
     ExplainerOutput,
+    ExplainResult,
+    PlotKind,
     compute_shap_explanation,
 )
-from sklab._results import (
-    CVResult,
-    EvalResult,
-    ExplainResult,
-    FitResult,
-    PlotKind,
-    SearchResult,
-)
+from sklab._results import CVResult, EvalResult, FitResult, SearchResult
 from sklab._search.optuna import OptunaConfig, OptunaSearcher
 from sklab._search.sklearn import GridSearchConfig, RandomSearchConfig
 from sklab.adapters.logging import LoggerProtocol

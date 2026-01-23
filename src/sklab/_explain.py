@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Sequence
+from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import TYPE_CHECKING, Any, cast
 
@@ -12,7 +13,6 @@ from sklearn.base import is_classifier
 from sklearn.pipeline import Pipeline
 
 from sklab._lazy import LazyModule
-from sklab._results import ExplainResult
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -37,6 +37,64 @@ class ExplainerOutput(StrEnum):
     RAW = auto()
     PROBABILITY = auto()
     LOG_ODDS = auto()
+
+
+class PlotKind(StrEnum):
+    """Available SHAP plot types."""
+
+    SUMMARY = auto()
+    BAR = auto()
+    BEESWARM = auto()
+    WATERFALL = auto()
+    FORCE = auto()
+    DEPENDENCE = auto()
+
+
+@dataclass(slots=True)
+class ExplainResult:
+    """Result of explaining model predictions with SHAP.
+
+    Attributes:
+        values: SHAP values array. Shape: (n_samples, n_features, n_outputs).
+            Always 3D for consistency across binary/multiclass/regression.
+        base_values: Expected value(s) of the model output.
+        data: The input data that was explained.
+        feature_names: Feature names if available, else None.
+        raw: The underlying shap.Explanation object for advanced use.
+    """
+
+    values: np.ndarray
+    base_values: np.ndarray
+    data: np.ndarray
+    feature_names: list[str] | None
+    raw: Any  # shap.Explanation
+
+    def plot(self, kind: PlotKind | str = PlotKind.BEESWARM, **kwargs: Any) -> None:
+        """Thin passthrough to shap.plots.
+
+        Parameters
+        ----------
+        kind : PlotKind or str, default=PlotKind.BEESWARM
+            Plot type: "summary", "bar", "beeswarm", "waterfall", "force", "dependence".
+        **kwargs
+            Passed to the underlying shap plot function.
+        """
+        if isinstance(kind, str):
+            try:
+                kind = PlotKind(kind)
+            except ValueError as exc:
+                valid = [p.value for p in PlotKind]
+                raise ValueError(
+                    f"Unknown plot kind {kind!r}. Valid options: {valid}"
+                ) from exc
+        try:
+            plot_fn = getattr(shap.plots, kind.value)
+        except AttributeError as exc:
+            valid = [p.value for p in PlotKind]
+            raise ValueError(
+                f"Unknown plot kind {kind!r}. Valid options: {valid}"
+            ) from exc
+        plot_fn(self.raw, **kwargs)
 
 
 def _select_explainer_method(estimator: Any) -> ExplainerModel:
