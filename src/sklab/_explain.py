@@ -39,7 +39,7 @@ class ExplainerOutput(StrEnum):
     LOG_ODDS = auto()
 
 
-class PlotKind(StrEnum):
+class ExplainerPlotKind(StrEnum):
     """Available SHAP plot types."""
 
     SUMMARY = auto()
@@ -69,28 +69,30 @@ class ExplainResult:
     feature_names: list[str] | None
     raw: Any  # shap.Explanation
 
-    def plot(self, kind: PlotKind | str = PlotKind.BEESWARM, **kwargs: Any) -> None:
+    def plot(
+        self, kind: ExplainerPlotKind | str = ExplainerPlotKind.BEESWARM, **kwargs: Any
+    ) -> None:
         """Thin passthrough to shap.plots.
 
         Parameters
         ----------
-        kind : PlotKind or str, default=PlotKind.BEESWARM
+        kind : ExplainerPlotKind or str, default=ExplainerPlotKind.BEESWARM
             Plot type: "summary", "bar", "beeswarm", "waterfall", "force", "dependence".
         **kwargs
             Passed to the underlying shap plot function.
         """
         if isinstance(kind, str):
             try:
-                kind = PlotKind(kind)
+                kind = ExplainerPlotKind(kind)
             except ValueError as exc:
-                valid = [p.value for p in PlotKind]
+                valid = [p.value for p in ExplainerPlotKind]
                 raise ValueError(
                     f"Unknown plot kind {kind!r}. Valid options: {valid}"
                 ) from exc
         try:
             plot_fn = getattr(shap.plots, kind.value)
         except AttributeError as exc:
-            valid = [p.value for p in PlotKind]
+            valid = [p.value for p in ExplainerPlotKind]
             raise ValueError(
                 f"Unknown plot kind {kind!r}. Valid options: {valid}"
             ) from exc

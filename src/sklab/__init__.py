@@ -6,9 +6,9 @@ from sklab.experiment import (
     Experiment,
     ExplainerModel,
     ExplainerOutput,
+    ExplainerPlotKind,
     ExplainResult,
     FitResult,
-    PlotKind,
     SearchResult,
 )
 
@@ -21,5 +21,5 @@ __all__ = [
     "ExplainResult",
     "ExplainerModel",
     "ExplainerOutput",
-    "PlotKind",
+    "ExplainerPlotKind",
 ]

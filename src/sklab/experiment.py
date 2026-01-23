@@ -16,8 +16,8 @@ from sklearn.utils.validation import check_is_fitted
 from sklab._explain import (
     ExplainerModel,
     ExplainerOutput,
+    ExplainerPlotKind,
     ExplainResult,
-    PlotKind,
     compute_shap_explanation,
 )
 from sklab._results import CVResult, EvalResult, FitResult, SearchResult
@@ -44,7 +44,7 @@ __all__ = [
     "ExplainResult",
     "ExplainerModel",
     "ExplainerOutput",
-    "PlotKind",
+    "ExplainerPlotKind",
 ]
 
 
