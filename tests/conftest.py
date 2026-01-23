@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import pytest
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -16,9 +16,21 @@ from sklearn.preprocessing import StandardScaler
 
 @pytest.fixture
 def data() -> tuple[Any, Any]:
-    """Dataset fixture for experiments."""
+    """Dataset fixture for experiments (iris - multiclass)."""
     dataset = load_iris()
     return dataset.data, dataset.target
+
+
+@pytest.fixture
+def binary_data() -> tuple[Any, Any]:
+    """Binary classification dataset (breast cancer)."""
+    return load_breast_cancer(return_X_y=True)
+
+
+@pytest.fixture
+def regression_data() -> tuple[Any, Any]:
+    """Regression dataset (diabetes)."""
+    return load_diabetes(return_X_y=True)
 
 
 @pytest.fixture
