@@ -56,8 +56,11 @@ filterwarnings = [
 line-length = 88
 
 [tool.ruff.lint]
-extend-select = ["I", "UP", "TID"]
+extend-select = ["I", "UP", "TID", "D"]
 fixable = ["I", "UP", "TID", "F401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
