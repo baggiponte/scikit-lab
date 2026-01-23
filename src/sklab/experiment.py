@@ -174,8 +174,6 @@ class Experiment:
         run_name: str | None = None,
     ) -> SearchResult[Study]: ...
 
-
-
     @overload
     def search(
         self,
