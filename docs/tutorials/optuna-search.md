@@ -395,7 +395,7 @@ print(f"Best value: {study.best_value:.4f}")
 
 The `Study` object provides rich functionality for post-search analysis:
 
-```python
+```{.python continuation}
 # Inspect individual trials
 for trial in study.trials[:3]:
     print(f"Trial {trial.number}: {trial.value:.4f} with {trial.params}")
