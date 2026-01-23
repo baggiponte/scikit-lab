@@ -113,7 +113,7 @@ def search_space(trial):
 
 experiment = Experiment(
     pipeline=pipeline,
-    scorers={"accuracy": "accuracy"},
+    scoring="accuracy",
     name="iris-optuna",
 )
 
@@ -228,7 +228,7 @@ pipeline = Pipeline([
 
 experiment = Experiment(
     pipeline=pipeline,
-    scorers={"accuracy": "accuracy"},
+    scoring="accuracy",
     name="iris-optuna-custom",
 )
 
@@ -296,7 +296,7 @@ pipeline = Pipeline([
 
 experiment = Experiment(
     pipeline=pipeline,
-    scorers={"accuracy": "accuracy"},
+    scoring="accuracy",
     name="optuna-vs-random",
 )
 
@@ -395,7 +395,7 @@ print(f"Best value: {study.best_value:.4f}")
 
 The `Study` object provides rich functionality for post-search analysis:
 
-```python
+```{.python continuation}
 # Inspect individual trials
 for trial in study.trials[:3]:
     print(f"Trial {trial.number}: {trial.value:.4f} with {trial.params}")
@@ -441,7 +441,7 @@ You can also use Optuna's built-in visualization functions:
 ## Notes
 
 - `OptunaConfig` uses the experiment's first scorer when `scoring` is not set.
-- If you pass multiple scorers, OptunaConfig optimizes the first one.
+- If you pass multiple scoring metrics, OptunaConfig optimizes the first one.
 - sklab only requires `fit()` and optionally `best_params_`, `best_score_`,
   `best_estimator_` attributes on custom searchers.
 
