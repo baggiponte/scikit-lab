@@ -4,18 +4,25 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast, overload
 
 from sklearn.base import clone
 from sklearn.metrics import get_scorer
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import cross_validate as sklearn_cross_validate
 from sklearn.utils.validation import check_is_fitted
 
 from sklab._search.optuna import OptunaConfig
+from sklab._search.sklearn import GridSearchConfig, RandomSearchConfig
 from sklab.adapters.logging import LoggerProtocol
 from sklab.logging import NoOpLogger
 from sklab.search import SearchConfigProtocol, SearcherProtocol
 from sklab.type_aliases import ScorerFunc, Scoring
+
+if TYPE_CHECKING:
+    from optuna.study import Study
+
+RawT = TypeVar("RawT")
 
 
 @dataclass(slots=True)
@@ -47,13 +54,13 @@ class CVResult:
 
 
 @dataclass(slots=True)
-class SearchResult:
+class SearchResult(Generic[RawT]):
     """Result of a hyperparameter search run."""
 
     best_params: Mapping[str, Any]
     best_score: float | None
     estimator: Any | None
-    raw: Any  # Optuna Study for OptunaConfig, or the searcher for sklearn configs
+    raw: RawT  # Optuna Study for OptunaConfig, or the searcher for sklearn configs
 
 
 @dataclass(slots=True)
@@ -154,6 +161,46 @@ class Experiment:
             raw=scores,
         )
 
+    @overload
+    def search(
+        self,
+        search: OptunaConfig,
+        X: Any,
+        y: Any | None = None,
+        *,
+        cv: Any | None = None,
+        n_trials: int | None = None,
+        timeout: float | None = None,
+        run_name: str | None = None,
+    ) -> SearchResult[Study]: ...
+
+    @overload
+    def search(
+        self,
+        search: GridSearchConfig,
+        X: Any,
+        y: Any | None = None,
+        *,
+        cv: Any | None = None,
+        n_trials: int | None = None,
+        timeout: float | None = None,
+        run_name: str | None = None,
+    ) -> SearchResult[GridSearchCV]: ...
+
+    @overload
+    def search(
+        self,
+        search: RandomSearchConfig,
+        X: Any,
+        y: Any | None = None,
+        *,
+        cv: Any | None = None,
+        n_trials: int | None = None,
+        timeout: float | None = None,
+        run_name: str | None = None,
+    ) -> SearchResult[RandomizedSearchCV]: ...
+
+    @overload
     def search(
         self,
         search: SearcherProtocol | SearchConfigProtocol,
@@ -164,7 +211,19 @@ class Experiment:
         n_trials: int | None = None,
         timeout: float | None = None,
         run_name: str | None = None,
-    ) -> SearchResult:
+    ) -> SearchResult[Any]: ...
+
+    def search(
+        self,
+        search: SearcherProtocol | SearchConfigProtocol,
+        X: Any,
+        y: Any | None = None,
+        *,
+        cv: Any | None = None,
+        n_trials: int | None = None,
+        timeout: float | None = None,
+        run_name: str | None = None,
+    ) -> SearchResult[Any]:
         """Run a hyperparameter search using a searcher or config object."""
         searcher = _build_searcher(
             search,
