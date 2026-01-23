@@ -26,7 +26,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from sklab import Experiment, ModelOutput
+from sklab import Experiment, ExplainerOutput
 
 X, y = load_breast_cancer(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(
@@ -42,11 +42,11 @@ experiment = Experiment(pipeline=pipeline, scoring="accuracy")
 experiment.fit(X_train, y_train)
 
 # Explain probability output (default for classifiers)
-result_prob = experiment.explain(X_test[:5], model_output=ModelOutput.PROBABILITY)
+result_prob = experiment.explain(X_test[:5], model_output=ExplainerOutput.PROBABILITY)
 print(f"Probability output - base value: {result_prob.base_values[0]:.4f}")
 
 # Explain raw decision function
-result_raw = experiment.explain(X_test[:5], model_output=ModelOutput.RAW)
+result_raw = experiment.explain(X_test[:5], model_output=ExplainerOutput.RAW)
 print(f"Raw output - base value: {result_raw.base_values[0]:.4f}")
 ```
 
@@ -54,10 +54,10 @@ print(f"Raw output - base value: {result_raw.base_values[0]:.4f}")
 
 | Value | Description | Use case |
 |-------|-------------|----------|
-| `ModelOutput.AUTO` | Auto-select based on model type | Default behavior |
-| `ModelOutput.PROBABILITY` | Explain `predict_proba` output | Intuitive probability scale |
-| `ModelOutput.RAW` | Explain raw output (`decision_function` or `predict`) | Compare to coefficients |
-| `ModelOutput.LOG_ODDS` | Explain log-odds (logit of probability) | Additive on log scale |
+| `ExplainerOutput.AUTO` | Auto-select based on model type | Default behavior |
+| `ExplainerOutput.PROBABILITY` | Explain `predict_proba` output | Intuitive probability scale |
+| `ExplainerOutput.RAW` | Explain raw output (`decision_function` or `predict`) | Compare to coefficients |
+| `ExplainerOutput.LOG_ODDS` | Explain log-odds (logit of probability) | Additive on log scale |
 
 !!! note "Concept: Log-Odds"
 
@@ -70,7 +70,7 @@ print(f"Raw output - base value: {result_raw.base_values[0]:.4f}")
 
 ```{.python continuation}
 # Log-odds for direct coefficient comparison
-result_logodds = experiment.explain(X_test[:5], model_output=ModelOutput.LOG_ODDS)
+result_logodds = experiment.explain(X_test[:5], model_output=ExplainerOutput.LOG_ODDS)
 print(f"Log-odds output - base value: {result_logodds.base_values[0]:.4f}")
 ```
 
@@ -331,7 +331,7 @@ Common errors and how to fix them:
 | Error | Cause | Fix |
 |-------|-------|-----|
 | `ValueError: fit()` | No fitted estimator | Call `fit()` or `cross_validate(refit=True)` first |
-| `ValueError: regressor` | `model_output='probability'` on regressor | Use `ModelOutput.RAW` for regressors |
+| `ValueError: regressor` | `model_output='probability'` on regressor | Use `ExplainerOutput.RAW` for regressors |
 | `ValueError: feature_names` | Wrong number of feature names | Match feature count after preprocessing |
 | `ValueError: background` | Background size > X size | Use smaller background or `None` |
 

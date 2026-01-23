@@ -4,10 +4,11 @@ from sklab.experiment import (
     CVResult,
     EvalResult,
     Experiment,
-    ExplainerMethod,
+    ExplainerModel,
+    ExplainerOutput,
     ExplainResult,
     FitResult,
-    ModelOutput,
+    PlotKind,
     SearchResult,
 )
 
@@ -18,6 +19,7 @@ __all__ = [
     "CVResult",
     "SearchResult",
     "ExplainResult",
-    "ExplainerMethod",
-    "ModelOutput",
+    "ExplainerModel",
+    "ExplainerOutput",
+    "PlotKind",
 ]

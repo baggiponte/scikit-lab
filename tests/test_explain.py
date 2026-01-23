@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-from sklab import Experiment, ExplainerMethod, ExplainResult, ModelOutput
+from sklab import Experiment, ExplainerModel, ExplainResult, ExplainerOutput
 from sklab._explain import (
     _compute_mean_abs_shap,
     _default_model_output,
@@ -93,11 +93,11 @@ def in_memory_logger():
 @pytest.mark.parametrize(
     "estimator,expected",
     [
-        (DecisionTreeClassifier(), ExplainerMethod.TREE),
-        (RandomForestClassifier(n_estimators=2), ExplainerMethod.TREE),
-        (LogisticRegression(), ExplainerMethod.LINEAR),
-        (Ridge(), ExplainerMethod.LINEAR),
-        (SVC(), ExplainerMethod.KERNEL),
+        (DecisionTreeClassifier(), ExplainerModel.TREE),
+        (RandomForestClassifier(n_estimators=2), ExplainerModel.TREE),
+        (LogisticRegression(), ExplainerModel.LINEAR),
+        (Ridge(), ExplainerModel.LINEAR),
+        (SVC(), ExplainerModel.KERNEL),
     ],
 )
 def test_select_explainer_method(estimator, expected, binary_data):
@@ -114,10 +114,10 @@ def test_select_explainer_method(estimator, expected, binary_data):
 @pytest.mark.parametrize(
     "estimator,expected",
     [
-        (LogisticRegression(), ModelOutput.PROBABILITY),
-        (SVC(probability=False), ModelOutput.RAW),
-        (SVC(probability=True), ModelOutput.PROBABILITY),
-        (Ridge(), ModelOutput.RAW),
+        (LogisticRegression(), ExplainerOutput.PROBABILITY),
+        (SVC(probability=False), ExplainerOutput.RAW),
+        (SVC(probability=True), ExplainerOutput.PROBABILITY),
+        (Ridge(), ExplainerOutput.RAW),
     ],
 )
 def test_default_model_output(estimator, expected):
@@ -374,7 +374,7 @@ def test_explain_pandas_dataframe(binary_data):
 @pytest.mark.parametrize(
     "method",
     [
-        ExplainerMethod.LINEAR,
+        ExplainerModel.LINEAR,
         "linear",
     ],
 )
@@ -389,7 +389,7 @@ def test_explain_accepts_method_string_and_enum(binary_data, method):
 @pytest.mark.parametrize(
     "model_output",
     [
-        ModelOutput.PROBABILITY,
+        ExplainerOutput.PROBABILITY,
         "probability",
     ],
 )

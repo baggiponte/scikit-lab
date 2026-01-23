@@ -14,12 +14,18 @@ from sklearn.model_selection import cross_validate as sklearn_cross_validate
 from sklearn.utils.validation import check_is_fitted
 
 from sklab._explain import (
-    ExplainerMethod,
-    ExplainResult,
-    ModelOutput,
+    ExplainerModel,
+    ExplainerOutput,
     compute_shap_explanation,
 )
-from sklab._results import CVResult, EvalResult, FitResult, SearchResult
+from sklab._results import (
+    CVResult,
+    EvalResult,
+    ExplainResult,
+    FitResult,
+    PlotKind,
+    SearchResult,
+)
 from sklab._search.optuna import OptunaConfig, OptunaSearcher
 from sklab._search.sklearn import GridSearchConfig, RandomSearchConfig
 from sklab.adapters.logging import LoggerProtocol
@@ -41,8 +47,9 @@ __all__ = [
     "CVResult",
     "SearchResult",
     "ExplainResult",
-    "ExplainerMethod",
-    "ModelOutput",
+    "ExplainerModel",
+    "ExplainerOutput",
+    "PlotKind",
 ]
 
 
@@ -249,8 +256,8 @@ class Experiment:
         self,
         X: ArrayLike,
         *,
-        method: ExplainerMethod | str = ExplainerMethod.AUTO,
-        model_output: ModelOutput | str = ModelOutput.AUTO,
+        method: ExplainerModel | str = ExplainerModel.AUTO,
+        model_output: ExplainerOutput | str = ExplainerOutput.AUTO,
         background: ArrayLike | int | None = None,
         feature_names: SequenceType[str] | None = None,
         run_name: str | None = None,
@@ -261,13 +268,13 @@ class Experiment:
         ----------
         X : array-like
             Samples to explain.
-        method : ExplainerMethod or str, default="auto"
+        method : ExplainerModel or str, default="auto"
             Explainer type. "auto" selects based on estimator structure:
             - Tree models (RandomForest, XGBoost, etc.) -> TreeExplainer
             - Linear models (LogisticRegression, Ridge) -> LinearExplainer
             - Neural networks (Keras, PyTorch) -> DeepExplainer
             - Everything else -> KernelExplainer (slower)
-        model_output : ModelOutput or str, default="auto"
+        model_output : ExplainerOutput or str, default="auto"
             What model output to explain. "auto" uses probability for classifiers
             with predict_proba, raw output otherwise. Use "log_odds" when comparing
             SHAP values to logistic regression coefficients.

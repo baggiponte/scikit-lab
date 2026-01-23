@@ -186,10 +186,10 @@ sklab automatically selects the best SHAP explainer for your model:
 You can override this with the `method` parameter:
 
 ```{.python continuation}
-from sklab import ExplainerMethod
+from sklab import ExplainerModel
 
 # Force a specific explainer
-result = experiment.explain(X_test[:5], method=ExplainerMethod.TREE)
+result = experiment.explain(X_test[:5], method=ExplainerModel.TREE)
 
 # String values also work
 result = experiment.explain(X_test[:5], method="tree")
