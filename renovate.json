@@ -1,0 +1,49 @@
+{
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "timezone": "Europe/Rome",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "enabledManagers": ["github-actions", "pre-commit", "pep621"],
+  "pre-commit": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchDepTypes": ["action"],
+      "pinDigests": true
+    },
+    {
+      "extends": ["helpers:pinGitHubActionDigests"],
+      "extractVersion": "^(?<version>v?\\d+\\.\\d+\\.\\d+)$",
+      "versioning": "regex:^v?(?<major>\\d+)(\\.(?<minor>\\d+)\\.(?<patch>\\d+))?$"
+    },
+    {
+      "groupName": "prek dependencies",
+      "matchManagers": ["pre-commit"],
+      "description": "Weekly update of prek dependencies"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions (latest)"
+    },
+    {
+      "matchDepTypes": ["dependency-groups"],
+      "groupName": "dependency-groups (all updates)"
+    },
+    {
+      "matchDepTypes": ["project.dependencies", "project.optional-dependencies"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "matchDepTypes": ["project.dependencies", "project.optional-dependencies"],
+      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "groupName": "core dependencies (patch-only)"
+    }
+  ]
+}
